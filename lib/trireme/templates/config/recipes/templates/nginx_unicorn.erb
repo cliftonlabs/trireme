@@ -1,0 +1,69 @@
+upstream unicorn_<%= "#{application}_#{rails_env}" %> {
+  server unix:/tmp/unicorn.<%= "#{application}_#{rails_env}" %>.sock fail_timeout=0;
+}
+
+<% if rewrite_www %>
+##############################
+# Rewrite non-www to www     #
+##############################
+server {
+  server_name www.<%= domain_name %>;
+  rewrite ^(.*) http://<%= domain_name %>$1 permanent;
+}
+<% end %>
+
+############################
+# Server configuration     #
+############################
+server {
+  listen 80<%= " default_server" if (defined? default_host) && default_host %>;
+  server_name <%= domain_name %>;
+  root /home/<%= user %>/<%= application %>/<%= stage %>/current/public;
+
+  location ^~ /assets/ {
+    gzip_static on;
+    expires max;
+    add_header Cache-Control public;
+  }
+
+  try_files $uri @unicorn;
+  location @unicorn {
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_redirect off;
+    proxy_pass http://unicorn_<%= application %>_<%= stage %>;
+  }
+
+  error_page 500 502 503 504 /500.html;
+  client_max_body_size 4G;
+  keepalive_timeout 10;
+}
+
+<% if include_ssl %>
+server {
+  listen 443;
+  server_name <%= domain_name %>;
+  ssl on;
+  ssl_certificate /path/to/certificate/certificate.combined.crt;
+  ssl_certificate_key /path/to/key/server.key;
+  root /home/<%= user %>/apps/<%= application %>/<%= stage %>/current/public;
+
+  location ^~ /assets/ {
+    gzip_static on;
+    expires max;
+    add_header Cache-Control public;
+  }
+
+  try_files $uri @unicorn;
+  location @unicorn {
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header Host $http_host;
+    proxy_redirect off;
+    proxy_pass http://unicorn_<%= application %>_<%= stage %>;
+  }
+
+  error_page 500 502 503 504 /500.html;
+  client_max_body_size 4G;
+  keepalive_timeout 10;
+}
+<% end %>

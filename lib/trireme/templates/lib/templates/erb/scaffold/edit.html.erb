@@ -1,0 +1,6 @@
+<h1>Editing <%= singular_table_name %></h1>
+
+<%%= render 'form' %>
+
+<%%= link_to "Show", @<%= singular_table_name %>, class: 'btn btn-primary' %> |
+<%%= link_to "Back to <%= plural_table_name %>", <%= index_helper %>_path, class: 'btn btn-default' %>

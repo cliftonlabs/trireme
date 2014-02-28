@@ -1,0 +1,16 @@
+<%%= form_for(@<%= singular_table_name %>) do |f| %>
+  <%% if @<%= singular_table_name %>.errors.any? %>
+    <%%= render 'shared/form_errors', obj: @category %>
+  <%% end %>
+
+  <% attributes.each do |attribute| -%>
+    <div class="form-group">
+      <%%= f.label :<%= attribute.name %> %>
+      <%%= f.<%= attribute.field_type %> :<%= attribute.name %>, class: 'form-control' %>
+    </div>
+  <% end -%>
+
+  <div class="form-actions">
+    <%%= f.submit 'Save', class: 'btn btn-primary' %>
+  </div>
+<%% end %>

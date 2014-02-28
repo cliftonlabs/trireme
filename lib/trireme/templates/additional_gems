@@ -1,0 +1,37 @@
+gem "pg"
+gem "carrier-pigeon"
+gem "exception_notification", :git => 'https://github.com/cliftonlabs/exception_notification.git', branch: 'irc-notifier'
+gem "compass-rails"
+gem "bootstrap-sass"
+gem "font-awesome-rails"
+
+group :development do
+  gem "annotate"
+  gem "better_errors"
+  gem "binding_of_caller"
+  gem "quiet_assets"
+  gem "mailcatcher"
+  gem "guard"
+  gem "guard-rspec", require: false
+  gem "guard-livereload", require: false
+end
+
+group :development, :test do
+  gem "sqlite3"
+  gem "rspec-rails", "~> 3.0.0.beta"
+  gem "factory_girl_rails"
+  gem "jazz_hands"
+end
+
+group :test do
+  gem "database_cleaner"
+  gem "shoulda-matchers"
+  gem "capybara"
+  gem "poltergeist", "~> 1.5.0"
+  gem "vcr"
+  gem "webmock", "~> 1.8.0"
+  gem "simplecov", require: false
+end
+
+gem 'unicorn'
+gem 'capistrano', '2.15.5'

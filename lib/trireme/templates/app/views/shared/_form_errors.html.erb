@@ -1,0 +1,9 @@
+<div class="alert alert-danger">
+  <p><%= pluralize(obj.errors.count, "error") %> prohibited this <%= obj.class.model_name.human %> from being saved:</p>
+
+  <ul>
+  <% obj.errors.full_messages.each do |msg| %>
+    <li><%= msg %></li>
+  <% end %>
+  </ul>
+</div>

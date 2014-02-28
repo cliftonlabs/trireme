@@ -1,0 +1,3 @@
+<%= link_to "#{icon :info}".html_safe, send("admin_#{obj.class.name.underscore}_path", obj), class: 'btn btn-primary' %>
+<%= link_to "#{icon :edit}".html_safe, send("edit_admin_#{obj.class.name.underscore}_path", obj), class: 'btn btn-warning' %>
+<%= link_to "#{icon :trash_o}".html_safe, send("admin_#{obj.class.name.underscore}_path", obj), method: :delete, data: { confirm: "Are you sure you want to delete the #{obj.class.name} '#{obj}'?" }, class: 'btn btn-danger' %>

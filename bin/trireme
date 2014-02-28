@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+
+require File.expand_path(File.join('..', 'lib', 'trireme', 'generators', 'app_generator'), File.dirname(__FILE__))
+require File.expand_path(File.join('..', 'lib', 'trireme', 'actions'), File.dirname(__FILE__))
+require File.expand_path(File.join('..', 'lib', 'trireme', 'app_builder'), File.dirname(__FILE__))
+require File.expand_path(File.join('..', 'lib', 'trireme'), File.dirname(__FILE__))
+
+templates_root = File.expand_path(File.join('..', 'lib', 'trireme', 'templates'), File.dirname(__FILE__))
+Trireme::AppGenerator.source_root templates_root
+Trireme::AppGenerator.source_paths << Rails::Generators::AppGenerator.source_root << templates_root
+
+Trireme::AppGenerator.start
