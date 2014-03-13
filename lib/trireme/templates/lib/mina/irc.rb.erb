@@ -1,3 +1,4 @@
+<% if config[:config_settings][:mina][:irc] %>
 require 'carrier-pigeon'
 
 namespace :irc do
@@ -13,8 +14,9 @@ end
 
 def send_irc_message(message)
   CarrierPigeon.send(
-    :uri => "irc://<%= config_settings[:mina][:irc][:nick] %><%= ":#{config_settings[:irc_settings][:password] if config_settings[:irc_settings][:password]}" %>@<%= config_settings[:irc_settings][:domain] %>:<%= config_settings[:irc][:port] %>/<%= config_settings[:irc_settings][:channel] %>",
+    :uri => "irc://<%= config[:config_settings][:mina][:irc][:nick] %><%= ":#{config[:config_settings][:irc][:password] if config[:config_settings][:irc][:password]}" %>@<%= config[:config_settings][:irc][:domain] %>:<%= config[:config_settings][:irc][:port] %>/<%= config[:config_settings][:irc][:channel] %>",
     :message => message,
-    :ssl => <%= config_settings[:irc_settings][:ssl] %>
+    :ssl => <%= config[:config_settings][:irc][:ssl] %>
   )
 end
+<% end -%>

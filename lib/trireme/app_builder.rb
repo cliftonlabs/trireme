@@ -5,7 +5,7 @@ module Trireme
     include Trireme::Actions
 
     def add_additional_gems
-      if yes? "Add carrierwave for file uploading?"
+      if config_settings[:gems].include?('carrierwave') || yes?("Add carrierwave for file uploading?")
         @generator.gem 'carrierwave'
         @generator.gem 'mini_magick'
       end
@@ -134,12 +134,20 @@ module Trireme
         opts[:server_ip] = ask("Server IP:")
         opts[:force] = true
       end
-      template "config/deploy.rb.erb", "config/deploy.rb", opts.merge({config_settings: config_settings})
+      puts @config.to_yaml
+      deploy_opts = opts.merge({config_settings: config_settings})
+      template "config/deploy.rb.erb", "config/deploy.rb", deploy_opts
       directory "config/deploy"
+      %w[staging.rb production.rb].each { |f| template "config/deploy/#{f}.erb", "config/deploy/#{f}", deploy_opts }
+
       directory "lib/mina"
-      Dir["File.expand_path('./templates/lib/mina/', __FILE__)*.erb"].each do |template|
-        template "lib/mina/#{template}", "lib/mina/#{template.gsub('.erb', '')}"
+
+      Dir["#{File.expand_path('../../trireme/templates/lib/mina/', __FILE__)}/*.erb"].each do |file|
+        file = file.split('/').last
+        template "lib/mina/#{file}", "lib/mina/#{file.gsub('.erb', '')}", deploy_opts
+        puts "lib/mina/#{file}", "lib/mina/#{file.gsub('.erb', '')}"
       end
+      run 'rm lib/mina/*.erb'
     end
 
     def setup_console
@@ -148,7 +156,7 @@ module Trireme
 
     def setup_devise
       if config_settings[:devise][:include] || yes?("Add Devise?")
-        devise_model = ask("Devise model (default: #{config_settings[:devise][:model]}):").underscore
+        devise_model = ask("Devise model (default: #{config_settings[:devise][:model]}):").underscore unless config_settings[:devise][:force_model]
         devise_model = config_settings[:devise][:model] if devise_model.blank?
         @generator.gem 'devise'
         run 'bundle install'
@@ -172,7 +180,7 @@ module Trireme
       if config_settings[:exception_notification][:irc]
         config_settings[:exception_notification][:irc][:prefix] = "[#{app_name.titleize} Production]"
         en_config << ",\n\t\t" if en_config[/}\Z/]
-        en_config << ":irc => #{format_config(config_settings[:exception_notification][:irc].merge(config_settings[:irc_settings]), 2)}"
+        en_config << ":irc => #{format_config(config_settings[:exception_notification][:irc].merge(config_settings[:irc]), 2)}"
       end
       configure_environment "production", en_config
     end

@@ -22,11 +22,11 @@ Dir['config/deploy/*.rb'].each { |f| load f }
 # Common settings for all servers
 ###########################################################################
 
-set :application,       "<%= application %>"
-set :application_name,  "<%= application.titleize %>"
-set :domain_name,       "<%= domain_base %>"
+set :application,       "<%= app_name %>"
+set :application_name,  "<%= app_name.titleize %>"
+set :domain_name,       "<%= config[:domain_base] %>"
 set :keep_releases,     5
-set :repository,        "<%= config_settings[:git][:url] %>#{application}.git"
+set :repository,        "<%= config[:config_settings][:git][:url] %>#{app_name}.git"
 set :default_server,    'staging'
 
 ###########################################################################
@@ -50,6 +50,6 @@ task :deploy => :environment do
       invoke :'unicorn:start'
     end
 
-    <%= "invoke :'irc:announce_deploy'" if config_settings[:mina][:irc] %>
+    <%= "invoke :'irc:announce_deploy'" if config[:config_settings][:mina][:irc] %>
   end
 end

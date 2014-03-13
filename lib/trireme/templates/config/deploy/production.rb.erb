@@ -1,6 +1,6 @@
 namespace :env do
   task :production => [:environment] do
-    set :server_ip,       '<%= server_ip || '123.123.123.123' %>'
+    set :server_ip,       '<%= config[:server_ip] || '123.123.123.123' %>'
     set :domain,          server_ip
     set :deploy_server,   'production'
     set :rails_env,       'production'
