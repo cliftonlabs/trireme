@@ -1,4 +1,4 @@
-<h1><%= plural_table_name %></h1>
+<h1><%= plural_table_name.titleize %></h1>
 
 <table class="table">
   <thead>
@@ -16,7 +16,11 @@
       <td><%%= <%= singular_table_name %>.<%= attribute.name %> %></td>
   <% end -%>
       <td>
-        <td><%%= render 'shared/admin_actions', obj: category %></td>
+        <td>
+          <%%= link_to icon(:info), <%= singular_table_name %>, class: 'btn btn-primary' %>
+          <%%= link_to icon(:edit), edit_<%= singular_table_name %>_path(<%= singular_table_name %>), class: 'btn btn-warning' %>
+          <%%= link_to icon(:trash_o), <%= singular_table_name %>, method: :delete, data: { confirm: "Are you sure you want to delete the #{human_name} '#{<%= singular_table_name %>}'?" }, class: 'btn btn-danger' %>
+        </td>
       </td>
     <%% end %>
   </tbody>
@@ -24,4 +28,4 @@
 
 <br />
 
-<%%= link_to 'New <%= human_name %>', new_<%= singular_table_name %>_path, class: 'btn btn-default' %>
+<%%= link_to icon(:plus, text: 'New <%= human_name %>'), new_<%= singular_table_name %>_path, class: 'btn btn-success' %>

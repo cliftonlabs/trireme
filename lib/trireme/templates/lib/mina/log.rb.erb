@@ -1,0 +1,21 @@
+namespace :log do
+  desc "View tail of rails log"
+  task :rails do
+    queue "tail #{logs_path}/#{rails_env}.log -n <%= config_settings[:mina][:log][:tail_length] %>"
+  end
+
+  desc "View tail of unicorn log"
+  task :unicorn do
+    queue "tail #{unicorn_log} -n <%= config_settings[:mina][:log][:tail_length] %>"
+  end
+
+  desc "View tail of nginx error log"
+  task :nginx do
+    queue "tail /var/log/nginx/error.log -n <%= config_settings[:mina][:log][:tail_length] %>"
+  end
+
+  desc "View tail of nginx access log"
+  task :nginx_access do
+    queue "tail /var/log/nginx/access.log -n <%= config_settings[:mina][:log][:tail_length] %>"
+  end
+end

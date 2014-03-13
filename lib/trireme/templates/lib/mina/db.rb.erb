@@ -1,0 +1,10 @@
+namespace :db do
+  desc "Run db:seed"
+  task :seed do
+    queue %{cd #{deploy_to}/#{current_path}}
+    queue %{bundle exec rake RAILS_ENV=#{rails_env} db:seed}
+    <% if config_settings[:mina][:irc] %>
+      invoke :'irc:announce_seed'
+    <% end -%>
+  end
+end

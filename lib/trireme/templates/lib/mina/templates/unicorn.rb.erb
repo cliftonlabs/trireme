@@ -1,10 +1,10 @@
-working_directory "<%= current_path %>"
+working_directory "<%= deploy_to %>/<%= current_path %>"
 pid "<%= unicorn_pid %>"
 stderr_path "<%= unicorn_log %>"
 stdout_path "<%= unicorn_log %>"
 preload_app true
 
-listen "/tmp/unicorn.<%= "#{application}_#{stage}" %>.sock"
+listen "/tmp/unicorn.<%= "#{application}_#{deploy_server}" %>.sock"
 worker_processes <%= unicorn_workers %>
 timeout 30
 

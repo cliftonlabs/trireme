@@ -126,7 +126,7 @@ module Trireme
         "config.action_mailer_delivery_method = :smtp\n\tconfig.action_mailer.smtp_settings = #{format_config(config_settings[:action_mailer][:smtp_settings])}"
     end
 
-    def setup_capistrano
+    def setup_deploy
       if @domain_base && @server_ip
         opts = { domain_base: @domain_base, server_ip: @server_ip, force: true }
       else
@@ -134,10 +134,12 @@ module Trireme
         opts[:server_ip] = ask("Server IP:")
         opts[:force] = true
       end
-      template "config/deploy.rb.erb", "config/deploy.rb", opts
+      template "config/deploy.rb.erb", "config/deploy.rb", opts.merge({config_settings: config_settings})
       directory "config/deploy"
-      copy_file "Capfile", "Capfile"
-      directory "config/recipes"
+      directory "lib/mina"
+      Dir["File.expand_path('./templates/lib/mina/', __FILE__)*.erb"].each do |template|
+        template "lib/mina/#{template}", "lib/mina/#{template.gsub('.erb', '')}"
+      end
     end
 
     def setup_console
@@ -170,7 +172,7 @@ module Trireme
       if config_settings[:exception_notification][:irc]
         config_settings[:exception_notification][:irc][:prefix] = "[#{app_name.titleize} Production]"
         en_config << ",\n\t\t" if en_config[/}\Z/]
-        en_config << ":irc => #{format_config(config_settings[:exception_notification][:irc], 2)}"
+        en_config << ":irc => #{format_config(config_settings[:exception_notification][:irc].merge(config_settings[:irc_settings]), 2)}"
       end
       configure_environment "production", en_config
     end

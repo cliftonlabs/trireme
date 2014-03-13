@@ -3,7 +3,6 @@ require 'rails/generators/rails/app/app_generator'
 
 module Trireme
   class AppGenerator < Rails::Generators::AppGenerator
-    class_option :database, type: :string, aliases: '-d', default: 'sqlite3', desc: "Preconfigure for selected database (options: #{DATABASES.join('/')})"
     class_option :config_file, type: :string, aliases: '-c', desc: "Include yaml configuration file"
 
     def finish_template
@@ -147,7 +146,7 @@ module Trireme
       build :get_server_options
 
       # Add deploy configuration and recipes
-      build :setup_capistrano
+      build :setup_deploy
     end
 
     def setup_git

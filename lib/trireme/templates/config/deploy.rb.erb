@@ -1,41 +1,55 @@
-# Set these values for the particular application
-set :domain_base, "<%= config[:domain_base] %>"
-set :server_ip, "<%= config[:server_ip] %>"
-set :application, "<%= app_name %>"
+$:.unshift './lib'
 
-# Possibly set these values
-set :repository, "git@git.cliftonlabs.com:web/#{application}"
-set :user, "deployer"
+require 'mina/bundler'
+require 'mina/rails'
+require 'mina/git'
 
-set :stages, %w(staging production)
-set :default_stage, "staging"
+require 'mina/defaults'
+require 'mina/utility'
+require 'mina/nginx'
+require 'mina/unicorn'
+require 'mina/postgresql'
+require 'mina/logrotate'
+require 'mina/log'
+require 'mina/check'
+require 'mina/irc'
+require 'mina/db'
 
-require "capistrano/ext/multistage"
-require "bundler/capistrano"
+# Load environments from config/deploy
+Dir['config/deploy/*.rb'].each { |f| load f }
 
-load "config/recipes/base"
-load "config/recipes/nginx"
-load "config/recipes/unicorn"
-load "config/recipes/postgresql"
-load "config/recipes/check"
-load "config/recipes/logrotate"
-load "config/recipes/log"
+###########################################################################
+# Common settings for all servers
+###########################################################################
 
-server server_ip, :web, :app, :db, primary: true
+set :application,       "<%= application %>"
+set :application_name,  "<%= application.titleize %>"
+set :domain_name,       "<%= domain_base %>"
+set :keep_releases,     5
+set :repository,        "<%= config_settings[:git][:url] %>#{application}.git"
+set :default_server,    'staging'
 
-set :shared_children, shared_children + %w{public/uploads}
+###########################################################################
 
-set :deploy_via, :remote_cache
-set :use_sudo, false
-set :deploy_to, defer { "/home/#{user}/#{application}/#{stage}/" }
+set :server, ENV['to'] || default_server
+invoke :"env:#{server}"
 
-set :default_environment, {
-  'PATH' => "$HOME/.rbenv/shims:$HOME/.rbenv/bin:$PATH"
-}
+desc "Deploys the current version to the server."
+task :deploy => :environment do
+  deploy do
+    invoke :'check:revision'
+    invoke :'git:clone'
+    invoke :'deploy:link_shared_paths'
+    invoke :'bundle:install'
+    invoke :'rails:db_migrate'
+    invoke :'rails:assets_precompile'
 
-set :scm, "git"
+    to :launch do
+      invoke :'unicorn:stop'
+      queue %{sleep 3}
+      invoke :'unicorn:start'
+    end
 
-default_run_options[:pty] = true
-ssh_options[:forward_agent] = true
-
-after "deploy", "deploy:cleanup" # keep only the last 5 releases
+    <%= "invoke :'irc:announce_deploy'" if config_settings[:mina][:irc] %>
+  end
+end

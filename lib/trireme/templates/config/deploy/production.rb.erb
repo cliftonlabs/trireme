@@ -1,0 +1,15 @@
+namespace :env do
+  task :production => [:environment] do
+    set :server_ip,       '<%= server_ip || '123.123.123.123' %>'
+    set :domain,          server_ip
+    set :deploy_server,   'production'
+    set :rails_env,       'production'
+    set :branch,          'master'
+    set :rewrite_www,     true
+    set :include_ssl,     false
+    set :default_host,    true
+    set :unicorn_workers, 1
+
+    invoke :defaults
+  end
+end

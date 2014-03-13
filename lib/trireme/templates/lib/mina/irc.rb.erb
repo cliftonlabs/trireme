@@ -1,0 +1,20 @@
+require 'carrier-pigeon'
+
+namespace :irc do
+  desc "Announce deploy to irc"
+  task :announce_deploy do
+    send_irc_message "#{ENV['USER'].capitalize} is deploying #{application_name || application} to #{server}"
+  end
+
+  task :announce_seed do
+    send_irc_message "#{ENV['USER'].capitalize} is seeding the database for #{application_name || application} #{server}"
+  end
+end
+
+def send_irc_message(message)
+  CarrierPigeon.send(
+    :uri => "irc://<%= config_settings[:mina][:irc][:nick] %><%= ":#{config_settings[:irc_settings][:password] if config_settings[:irc_settings][:password]}" %>@<%= config_settings[:irc_settings][:domain] %>:<%= config_settings[:irc][:port] %>/<%= config_settings[:irc_settings][:channel] %>",
+    :message => message,
+    :ssl => <%= config_settings[:irc_settings][:ssl] %>
+  )
+end
